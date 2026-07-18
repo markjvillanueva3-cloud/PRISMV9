@@ -44,8 +44,16 @@ import { existsSync, statSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-/** Collapse a burst of near-simultaneous fleet Stops into a single sweep. */
-const STOP_THROTTLE_MS = 45 * 1000;
+/**
+ * Collapse a burst of near-simultaneous fleet Stops into a single sweep.
+ * 15 min (was 45 s): a Stop only makes an orphan's FIRST sighting happen sooner;
+ * the confirm-after-N-ticks rule + the 5-min `PRISM Fleet Reaper` scheduled task
+ * + the in-session Monitor still cover actual reaping. At 45 s nearly every
+ * turn-end re-spawned a detached fleet-wide sweep (fork-storm noise on every
+ * Stop); 15 min collapses normal-cadence Stops onto one sweep while a genuinely
+ * dead chat's orphans are still reaped within the scheduled-task window.
+ */
+const STOP_THROTTLE_MS = 15 * 60 * 1000;
 /** Upper bound on the stdin drain — never wait on an EOF that won't come. */
 const STDIN_DRAIN_TIMEOUT_MS = 200;
 
