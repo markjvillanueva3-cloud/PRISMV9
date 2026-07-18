@@ -1,4 +1,4 @@
-﻿param(
+param(
   [string]$TaskName = 'PRISM Fleet Reaper',
   [int]$EveryMinutes = 5,
   # Phase offset (seconds) for the trigger anchor. PRISM already runs the
@@ -7,7 +7,7 @@
   # on the half-cycle between them instead of phase-locking onto the same busy
   # minute (three PowerShell-forking reapers firing together every 5 min).
   [int]$StartOffsetSeconds = 210,
-  # Install the task with --dry-run baked in — a burn-in mode. The sweep then
+  # Install the task with --dry-run baked in -- a burn-in mode. The sweep then
   # classifies + decides but never kills; watch state/shared/fleet-reaper.log to
   # confirm correct slot attribution, then reinstall without -DryRun.
   [switch]$DryRun,
@@ -17,10 +17,10 @@
   # installing user is interactively logged in (Logon Mode: Interactive only).
   # Default (this switch OFF) hardens the task to run whether-logged-on-or-not.
   [switch]$Interactive,
-  # Conservative opt-out: run as the current user (S4U logon — current user's
+  # Conservative opt-out: run as the current user (S4U logon -- current user's
   # context, no stored password) instead of the default SYSTEM. S4U can reap
   # ONLY the installing user's processes and gets "Access is denied" on any
-  # elevated / cross-security-context process — the exact orphan class the
+  # elevated / cross-security-context process -- the exact orphan class the
   # reaper was failing to kill. Use only if a SYSTEM-context reaper is
   # unacceptable for this host. Ignored when -Interactive.
   [switch]$AsCurrentUser,
@@ -30,24 +30,24 @@
   [switch]$AsSystem
 )
 
-# install-fleet-reaper-task.ps1 — durable backbone for the slot-aware orphan reaper.
+# install-fleet-reaper-task.ps1 -- durable backbone for the slot-aware orphan reaper.
 #
 # Registers a Windows Scheduled Task that runs fleet-reaper-sweep.mjs --once every
 # $EveryMinutes minutes, independent of any Claude Code session. This is the
-# "survives all 7 chats closing" half of the FLEET-REAPER pipeline — the
+# "survives all 7 chats closing" half of the FLEET-REAPER pipeline -- the
 # in-session Monitor (launched by /fleet-reaper) gives a live event feed while a
 # chat is open, but only this scheduled task keeps reaping when every chat is gone.
 #
 # What the sweep does (see scripts/fleet-reaper-sweep.mjs): maps every running
 # node/git/bash process to the chat slot that spawned it (chat-slots.json), and
-# reaps only those whose owning slot is provably dead — gated by a
+# reaps only those whose owning slot is provably dead -- gated by a
 # confirm-after-N-ticks rule so a brief heartbeat gap never kills a live chat's
 # process. It does NOT duplicate the generic "PRISM Cleanup Orchestrator" task
-# (locks/claims/bash orphans) — it adds the slot-attributed layer those lack.
+# (locks/claims/bash orphans) -- it adds the slot-attributed layer those lack.
 #
 # Why 5-min cadence: matches the existing cleanup-orchestrator / memory-relief
 # tasks. The reaper's own confirm window (default 2 ticks x interval) means a
-# 5-min sweep cadence reaps a confirmed orphan after ~10-15 min — fast enough to
+# 5-min sweep cadence reaps a confirmed orphan after ~10-15 min -- fast enough to
 # keep host memory stable for 7 concurrent chats, slow enough to never thrash.
 #
 # Per memory feedback_never_delete_only_disable.md: this REGISTERS a task; it can
@@ -56,11 +56,11 @@
 $ErrorActionPreference = 'Stop'
 
 # Registering / unregistering a task in the root \ folder needs an elevated
-# context on Windows 11 — fail with a clear message instead of a raw COM error.
+# context on Windows 11 -- fail with a clear message instead of a raw COM error.
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(
   [Security.Principal.WindowsBuiltinRole]::Administrator)
 if (-not $isAdmin) {
-  throw "Run from an ELEVATED PowerShell — (un)registering the scheduled task '$TaskName' needs admin rights."
+  throw "Run from an ELEVATED PowerShell -- (un)registering the scheduled task '$TaskName' needs admin rights."
 }
 
 # The scheduled task always targets the canonical main tree, never a worktree
@@ -116,7 +116,7 @@ $trigger = @($pollTrigger, $startupTrigger)
 # kills); 2 min is a generous ceiling. MultipleInstances IgnoreNew so a slow
 # sweep never piles a second instance on top of itself. RestartCount/Interval
 # self-heals a sweep that dies abnormally (host OOM mid-fork) without waiting a
-# whole poll cycle — closes the "no recovery if a launch crashes" gap.
+# whole poll cycle -- closes the "no recovery if a launch crashes" gap.
 $settings = New-ScheduledTaskSettingsSet `
   -AllowStartIfOnBatteries `
   -DontStopIfGoingOnBatteries `
@@ -126,20 +126,20 @@ $settings = New-ScheduledTaskSettingsSet `
   -RestartInterval (New-TimeSpan -Minutes 1) `
   -MultipleInstances IgnoreNew
 
-# Principal — the load-bearing privilege fix. With NO principal (legacy
+# Principal -- the load-bearing privilege fix. With NO principal (legacy
 # -Interactive) the task's Logon Mode is "Interactive only": it does NOT run
 # unless the installing user is logged in. Otherwise:
 #   SYSTEM (DEFAULT) = the NT AUTHORITY\SYSTEM machine account. It can
 #           terminate ANY process on the host regardless of owner or integrity
 #           level, needs no UAC consent, and runs in session 0 so it never
 #           flashes a console window. This is the correct principal for a
-#           process reaper — a reaper that cannot kill its targets is not a
+#           process reaper -- a reaper that cannot kill its targets is not a
 #           reaper. S4U was returning "Access is denied" on elevated /
 #           cross-context node processes (the orphan class that piled up);
 #           SYSTEM has no such limit.
 #   S4U (-AsCurrentUser) = the installing user's security context, runs
 #           whether-logged-on-or-not, no stored password. Conservative
-#           opt-out — but it CANNOT kill elevated or cross-user processes.
+#           opt-out -- but it CANNOT kill elevated or cross-user processes.
 # RunLevel Highest matches the elevated install context either way.
 $principal = $null
 if (-not $Interactive) {
@@ -147,7 +147,7 @@ if (-not $Interactive) {
     $principal = New-ScheduledTaskPrincipal -UserId "$env:USERDOMAIN\$env:USERNAME" `
       -LogonType S4U -RunLevel Highest
   } else {
-    # DEFAULT — SYSTEM. Maximum kill privilege, no UAC prompt, no window.
+    # DEFAULT -- SYSTEM. Maximum kill privilege, no UAC prompt, no window.
     $principal = New-ScheduledTaskPrincipal -UserId 'SYSTEM' `
       -LogonType ServiceAccount -RunLevel Highest
   }
@@ -170,32 +170,32 @@ Register-ScheduledTask @registerParams | Out-Null
 
 $mode = if ($DryRun) { 'DRY-RUN burn-in (never kills)' } else { 'live' }
 $autonomy = if ($Interactive) {
-  'INTERACTIVE-ONLY (legacy — dies when you log off)'
+  'INTERACTIVE-ONLY (legacy -- dies when you log off)'
 } elseif ($AsCurrentUser) {
   'AUTONOMOUS as S4U / current user (runs at boot + whether-logged-on-or-not; CANNOT kill elevated processes)'
 } else {
-  'AUTONOMOUS as SYSTEM (admin — terminates any process, no UAC, no window; runs at boot + whether-logged-on-or-not)'
+  'AUTONOMOUS as SYSTEM (admin -- terminates any process, no UAC, no window; runs at boot + whether-logged-on-or-not)'
 }
 Write-Host "Registered: $TaskName ($mode, $autonomy, fleet-reaper-sweep.mjs --once, every $EveryMinutes min + AtStartup, +$($StartOffsetSeconds)s phase offset, node=$nodeExe)"
 
 if ($RunNow) {
   Start-ScheduledTask -TaskName $TaskName
   # A sweep can take ~30s; LastTaskResult reads 267009 (0x41301 = "running")
-  # until it finishes — poll past that rather than reporting a misleading code.
+  # until it finishes -- poll past that rather than reporting a misleading code.
   $deadline = (Get-Date).AddSeconds(90)
   do {
     Start-Sleep -Seconds 3
     $info = Get-ScheduledTaskInfo -TaskName $TaskName
   } while ($info.LastTaskResult -eq 267009 -and (Get-Date) -lt $deadline)
   if ($info.LastTaskResult -eq 267009) {
-    Write-Host "Triggered immediate run — still running after 90s (LastTaskResult=267009). Check state/shared/fleet-reaper.log."
+    Write-Host "Triggered immediate run -- still running after 90s (LastTaskResult=267009). Check state/shared/fleet-reaper.log."
   } else {
     Write-Host "Triggered immediate run. LastTaskResult=$($info.LastTaskResult)"
   }
 }
 
 Write-Host ""
-Write-Host "Knobs (env, read by the sweep — full list in the sweep script header):"
+Write-Host "Knobs (env, read by the sweep -- full list in the sweep script header):"
 Write-Host "  PRISM_FLEET_REAPER_DISABLE=1          sweep refuses to kill anything"
 Write-Host "  PRISM_FLEET_REAPER_DRY_RUN=1          classify + decide, never kill"
 Write-Host "  PRISM_FLEET_REAPER_KILL_AFTER=N       confirm ticks before a kill (default 2)"

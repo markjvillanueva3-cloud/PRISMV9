@@ -1,8 +1,8 @@
 # install-blueprint-ocr-batch-task.ps1
-# U-PSGB-XRAY-BATCH (#6) — register a ONE-SHOT Windows Scheduled Task that runs
+# U-PSGB-XRAY-BATCH (#6) -- register a ONE-SHOT Windows Scheduled Task that runs
 # the overnight blueprint-vision OCR batch while the chat fleet is down (the
 # live-pilot blocker is fleet GPU+CPU saturation; an idle host lets the VL model
-# stay GPU-resident). Runs WITHOUT Claude — survives closing the chat windows.
+# stay GPU-resident). Runs WITHOUT Claude -- survives closing the chat windows.
 #
 # Sister to install-fleet-reaper-task.ps1 (same pattern). One-shot: fires once at
 # -At, then the task is left registered (re-run -RunNow or re-install to repeat).

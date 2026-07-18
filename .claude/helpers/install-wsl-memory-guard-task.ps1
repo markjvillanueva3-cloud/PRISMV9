@@ -20,20 +20,20 @@ param(
   [switch]$AsSystem
 )
 
-# install-wsl-memory-guard-task.ps1 — durable backbone for the WSL2 memory-cap
+# install-wsl-memory-guard-task.ps1 -- durable backbone for the WSL2 memory-cap
 # guard (scripts/system-health/27-wsl-memory-guard.mjs).
 #
 # WHY (diagnosed 2026-06-08, slot:charlie): the recurring "API limit error" was
 # host commit-memory pressure, NOT an Anthropic key limit. WSL2 ran with its
-# .wslconfig `memory=16GB` cap NOT enforced — vmmemWSL ballooned to ~96 GB
+# .wslconfig `memory=16GB` cap NOT enforced -- vmmemWSL ballooned to ~96 GB
 # committed because a `wsl --shutdown` (which makes .wslconfig take effect) was
 # never run. At ~99% host commit, outbound HTTPS/API calls + the MCP server
-# fail allocation → looks like an API/rate limit. Killing zombie tsservers only
+# fail allocation -> looks like an API/rate limit. Killing zombie tsservers only
 # dents it; WSL is the dominant, recurring offender.
 #
 # This guard polls vmmemWSL vs the configured cap every 15 min and surfaces the
 # overrun BEFORE it becomes acute. Sibling of the 5-min Fleet Memory Monitor
-# (whole-host RAM) — this one is WSL-specific because WSL is the root cause.
+# (whole-host RAM) -- this one is WSL-specific because WSL is the root cause.
 #
 # Per [[feedback_never_delete_only_disable]]: this REGISTERS a task; Disable-
 # ScheduledTask pauses without removing. -Uninstall removes.
@@ -43,14 +43,14 @@ $ErrorActionPreference = 'Stop'
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(
   [Security.Principal.WindowsBuiltinRole]::Administrator)
 if (-not $isAdmin) {
-  throw "Run from an ELEVATED PowerShell — (un)registering the scheduled task '$TaskName' needs admin rights."
+  throw "Run from an ELEVATED PowerShell -- (un)registering the scheduled task '$TaskName' needs admin rights."
 }
 
 # Always target the canonical main tree, never a worktree.
 $guardScript = 'H:\PRISM\scripts\system-health\27-wsl-memory-guard.mjs'
 
 # Prefer the portable node; fall back to Program Files then PATH.
-# Mirrors install-fleet-memory-monitor-task.ps1:67-71 — keep in sync.
+# Mirrors install-fleet-memory-monitor-task.ps1:67-71 -- keep in sync.
 $nodeExe = $null
 foreach ($cand in @('H:\Tools\nodejs\node.exe', 'C:\Program Files\nodejs\node.exe')) {
   if (Test-Path $cand) { $nodeExe = $cand; break }
@@ -116,7 +116,7 @@ if (-not $Interactive) {
   }
 }
 
-$desc = "WSL2 memory-cap guard for the PRISM fleet (27-wsl-memory-guard.mjs --json --quiet$(if ($Enforce) { ' --enforce' })). Polls vmmemWSL commit vs the .wslconfig memory= cap; flags overrun (cap NOT enforced — the recurring 'API limit error' root cause: WSL balloons past its cap when wsl --shutdown was never run). Advise-only by default (surfaces exit 2); -Enforce runs gated `wsl --shutdown` to reclaim. Runs whether-logged-on (S4U) + at boot. Sibling of the 5-min Fleet Memory Monitor (whole-host RAM)."
+$desc = "WSL2 memory-cap guard for the PRISM fleet (27-wsl-memory-guard.mjs --json --quiet$(if ($Enforce) { ' --enforce' })). Polls vmmemWSL commit vs the .wslconfig memory= cap; flags overrun (cap NOT enforced -- the recurring 'API limit error' root cause: WSL balloons past its cap when wsl --shutdown was never run). Advise-only by default (surfaces exit 2); -Enforce runs gated `wsl --shutdown` to reclaim. Runs whether-logged-on (S4U) + at boot. Sibling of the 5-min Fleet Memory Monitor (whole-host RAM)."
 
 $registerParams = @{
   TaskName    = $TaskName
@@ -131,7 +131,7 @@ Register-ScheduledTask @registerParams | Out-Null
 
 $mode = if ($Enforce) { 'ENFORCE (gated wsl --shutdown on overrun)' } else { 'advise-only' }
 $autonomy = if ($Interactive) {
-  'INTERACTIVE-ONLY (legacy — dies when you log off)'
+  'INTERACTIVE-ONLY (legacy -- dies when you log off)'
 } elseif ($AsSystem) {
   'AUTONOMOUS as SYSTEM (runs at boot + whether-logged-on-or-not)'
 } else {
@@ -147,7 +147,7 @@ if ($RunNow) {
     $info = Get-ScheduledTaskInfo -TaskName $TaskName
   } while ($info.LastTaskResult -eq 267009 -and (Get-Date) -lt $deadline)
   if ($info.LastTaskResult -eq 267009) {
-    Write-Host "Triggered immediate run — still running after 60s (LastTaskResult=267009)."
+    Write-Host "Triggered immediate run -- still running after 60s (LastTaskResult=267009)."
   } else {
     # Exit codes: 0 healthy, 1 watch/no-cap, 2 overrun.
     $name = switch ($info.LastTaskResult) {
@@ -161,7 +161,7 @@ if ($RunNow) {
 }
 
 Write-Host ""
-Write-Host "Knobs (CLI flags — full list in the guard script header):"
+Write-Host "Knobs (CLI flags -- full list in the guard script header):"
 Write-Host "  --overrun-factor N   commit>cap*N => overrun (default 1.5)"
 Write-Host "  --enforce            run `wsl --shutdown` on overrun (gated on no active docker)"
 Write-Host "  --force              allow --enforce even with active containers (logged)"

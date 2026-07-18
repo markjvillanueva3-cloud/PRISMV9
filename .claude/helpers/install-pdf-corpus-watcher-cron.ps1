@@ -1,4 +1,4 @@
-# install-pdf-corpus-watcher-cron.ps1 — U-VICTOR-C3
+# install-pdf-corpus-watcher-cron.ps1 -- U-VICTOR-C3
 # Periodic sweep of resources/ + JM DIE/ for new/modified PDFs. Closes the
 # "operator manually compiles new PDFs" gap noted in [[feedback_enumerate_before_read]].
 #
@@ -56,7 +56,7 @@ $action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-NoProfil
 $startBoundary = (Get-Date).Date.AddHours(0).AddMinutes(11)
 $trigger = New-ScheduledTaskTrigger -Once -At $startBoundary `
   -RepetitionInterval (New-TimeSpan -Minutes $IntervalMinutes) `
-  -RepetitionDuration (New-TimeSpan -Days 9125) # ~25 yr — effectively forever
+  -RepetitionDuration (New-TimeSpan -Days 9125) # ~25 yr -- effectively forever
 
 $principal = New-ScheduledTaskPrincipal -UserId "$env:USERDOMAIN\$env:USERNAME" -LogonType S4U
 $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -ExecutionTimeLimit (New-TimeSpan -Minutes 10)

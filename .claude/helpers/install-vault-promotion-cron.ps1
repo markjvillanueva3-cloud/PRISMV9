@@ -1,21 +1,21 @@
-# install-vault-promotion-cron.ps1 — OBSIDIAN-VAULT-OPS / U-VAULT-MAINT-CRON
+# install-vault-promotion-cron.ps1 -- OBSIDIAN-VAULT-OPS / U-VAULT-MAINT-CRON
 # Register a durable Windows Scheduled Task that runs the Memory->Wiki promotion
 # (promote-memory-to-wiki.mjs) nightly. Closes the "promotion runs only by hand"
 # gap from the 2026-06-08 vault audit (the engine + script work but were never
 # scheduled, so durable memories never auto-graduated to the wiki).
 #
 # Pattern mirrors install-wiki-tribal-audit-task.ps1 (current-user S4U, knob-aware
-# Action, idempotent unregister-before-register). Phase chosen at 02:47 — off-peak,
+# Action, idempotent unregister-before-register). Phase chosen at 02:47 -- off-peak,
 # distinct from the wiki-tribal audit (00:08) and fleet-reaper (+210s) so the three
 # do not contend for the H:/prism git/state surface.
 #
-# ── OPERATOR NOTE (HW/DRIVE MIGRATION FREEZE, 2026-06-08) ────────────────────────
+# -- OPERATOR NOTE (HW/DRIVE MIGRATION FREEZE, 2026-06-08) ------------------------
 # This installer REGISTERS the task but the operator decides WHEN to arm it. As of
 # 2026-06-08 the fleet has 47 PRISM scheduled tasks deliberately DISABLED during a
-# hardware/drive migration — DO NOT run this installer (or run it with -Disabled)
+# hardware/drive migration -- DO NOT run this installer (or run it with -Disabled)
 # until the operator confirms the migration is complete. Registering with -Disabled
 # creates the task in a Disabled state (belt-and-suspenders) so it cannot fire.
-# ─────────────────────────────────────────────────────────────────────────────────
+# ---------------------------------------------------------------------------------
 #
 # Usage:
 #   # Ship-only (default during migration): register DISABLED so it never fires
@@ -25,7 +25,7 @@
 #   powershell -NoProfile -ExecutionPolicy Bypass -File H:/prism/.claude/helpers/install-vault-promotion-cron.ps1 -Uninstall
 #
 # Knob (disable WITHOUT uninstalling): PRISM_VAULT_PROMOTION_CRON_DISABLE=1
-#   (checked at the start of the Action script — the task fires but exits early)
+#   (checked at the start of the Action script -- the task fires but exits early)
 
 param(
   [switch]$Uninstall,
@@ -65,7 +65,7 @@ $action = New-ScheduledTaskAction `
   -Execute "powershell.exe" `
   -Argument "-NoProfile -ExecutionPolicy Bypass -File `"$tmp`""
 
-# Nightly at 02:47:00 — off-peak, distinct from wiki-tribal audit (00:08) +
+# Nightly at 02:47:00 -- off-peak, distinct from wiki-tribal audit (00:08) +
 # vault-rot sentinel (00:38) + fleet-reaper (+210s).
 $trigger = New-ScheduledTaskTrigger -Daily -At "02:47:00"
 
@@ -100,7 +100,7 @@ Write-Host "  Disable knob: PRISM_VAULT_PROMOTION_CRON_DISABLE=1"
 # is present (auditable, ready to arm) but cannot fire until the operator enables it.
 if ($Disabled) {
   Disable-ScheduledTask -TaskName $TaskName | Out-Null
-  Write-Host "  State: DISABLED (migration-safe — operator runs 'Enable-ScheduledTask -TaskName ""$TaskName""' to arm)"
+  Write-Host "  State: DISABLED (migration-safe -- operator runs 'Enable-ScheduledTask -TaskName ""$TaskName""' to arm)"
 }
 
 if ($RunNow) {

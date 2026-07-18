@@ -1,4 +1,4 @@
-# install-wiki-tribal-audit-task.ps1 — U-VICTOR-A3
+# install-wiki-tribal-audit-task.ps1 -- U-VICTOR-A3
 # Register a durable Windows Scheduled Task that regenerates the wiki<->tribal
 # audit + per-domain breakdown every 24h. Closes the audit-staleness gap (was
 # 5 days stale when victor opened the audit 2026-05-27).
@@ -11,7 +11,7 @@
 #   powershell -NoProfile -ExecutionPolicy Bypass -File H:/prism/.claude/helpers/install-wiki-tribal-audit-task.ps1 -Uninstall
 #
 # Knob (disable WITHOUT uninstalling): PRISM_WIKI_TRIBAL_AUDIT_CRON_DISABLE=1
-#   (env-var checked at the start of the Action script — task fires but exits early)
+#   (env-var checked at the start of the Action script -- task fires but exits early)
 
 param(
   [switch]$Uninstall,

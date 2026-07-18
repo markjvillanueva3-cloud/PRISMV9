@@ -1,8 +1,8 @@
 # install-combo-efficiency-tasks.ps1
-# COMBO-EFFICIENCY-MS0 follow-up — register 4 Windows scheduled tasks (slot:alpha 2026-05-25).
+# COMBO-EFFICIENCY-MS0 follow-up -- register 4 Windows scheduled tasks (slot:alpha 2026-05-25).
 #
 # Pattern lift from .claude/helpers/install-fleet-reaper-task.ps1 (CLAUDE.md
-# §FLEET-REAPER) — uses S4U (Service-For-User) principal so tasks run without
+# SFLEET-REAPER) -- uses S4U (Service-For-User) principal so tasks run without
 # stored credentials.
 #
 # Tasks registered:
@@ -11,7 +11,7 @@
 #   "PRISM Wiki Link Healer Suggest"    daily 02:17 local  (P1-U02 suggester, full 4136-link batch)
 #   "PRISM Wiki Link Healer Apply"      daily 02:23 local  (P1-U02 applier, dry-run by default)
 #
-# The Apply task DEFAULTS TO DRY-RUN — operator must edit the registered
+# The Apply task DEFAULTS TO DRY-RUN -- operator must edit the registered
 # task to flip --apply on. This prevents un-reviewed auto-edits to the wiki/
 # tree from landing without explicit consent (per P1-U02 safety contracts).
 #
@@ -91,7 +91,7 @@ function Register-OneTask {
     throw "Unknown trigger type: $($Spec.TriggerType)"
   }
 
-  # S4U principal — runs as current user without stored password
+  # S4U principal -- runs as current user without stored password
   # (NT AUTHORITY\SYSTEM is more robust but requires Admin; S4U works for user-level).
   $currentUser = "$env:USERDOMAIN\$env:USERNAME"
   $principal = New-ScheduledTaskPrincipal -UserId $currentUser -LogonType S4U -RunLevel Limited
@@ -118,7 +118,7 @@ function Unregister-AllTasks {
   Write-Host "All COMBO-EFFICIENCY scheduled tasks removed." -ForegroundColor Cyan
 }
 
-# ─── main ──────────────────────────────────────────────────────────────────
+# --- main ------------------------------------------------------------------
 
 if ($Unregister) {
   Unregister-AllTasks

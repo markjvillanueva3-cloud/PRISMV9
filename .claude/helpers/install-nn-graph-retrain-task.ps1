@@ -1,6 +1,6 @@
 param(
   [string]$TaskName = 'PRISM NN-Graph Retrain',
-  # Cadence in HOURS — this is a heavy task (a retrain is a multi-minute
+  # Cadence in HOURS -- this is a heavy task (a retrain is a multi-minute
   # GraphSAGE training run), unlike the 5-minute fleet-reaper sweep. The
   # lifecycle's own drift gate makes most polls a sub-second no-op, so a
   # 6-hour cadence catches graph drift quickly while almost never paying the
@@ -11,7 +11,7 @@ param(
   # +120s, Fleet Reaper +210s, Fleet Memory Monitor +330s). +450s lands this
   # task clear of all of them, so a poll never phase-locks onto a busy minute.
   [int]$StartOffsetSeconds = 450,
-  # Install with --dry-run baked in — a burn-in mode. The lifecycle then
+  # Install with --dry-run baked in -- a burn-in mode. The lifecycle then
   # fingerprints, drift-checks, trains a candidate, and evaluates it, but never
   # promotes the live checkpoint or advances the baseline. Watch
   # state/shared/nn-graph/retrain-lifecycle.jsonl, then reinstall without it.
@@ -29,24 +29,24 @@ param(
   # Strongest principal: run as the SYSTEM machine account instead of the
   # default S4U (current user's context, no stored password). The retrain
   # lifecycle only reads the system-viz graph and writes under
-  # state/shared/nn-graph/ — S4U (the installing user's context) is sufficient;
+  # state/shared/nn-graph/ -- S4U (the installing user's context) is sufficient;
   # -AsSystem is offered only for parity with the fleet-reaper installer.
   [switch]$AsSystem
 )
 
-# install-nn-graph-retrain-task.ps1 — durable backbone for NN-GRAPH-MS2 U2,
+# install-nn-graph-retrain-task.ps1 -- durable backbone for NN-GRAPH-MS2 U2,
 # the autonomous GNN tier-5 self-retrain lifecycle.
 #
 # Registers a Windows Scheduled Task that runs nn-graph-retrain-lifecycle.mjs
 # every $EveryHours hours, independent of any Claude Code session. The lifecycle
 # (see scripts/nn-graph-retrain-lifecycle.mjs):
 #   1. fingerprints the system-viz graph (node/edge/ghost counts),
-#   2. drift-detects against its baseline — no drift => a cheap no-op SKIP,
+#   2. drift-detects against its baseline -- no drift => a cheap no-op SKIP,
 #   3. on drift, trains a CANDIDATE GraphSAGE checkpoint (the live checkpoint is
 #      never touched by training),
 #   4. evaluates the candidate against the NN-GRAPH-MS0 gates
 #      (AUROC>=0.78, macro-F1>=0.55, Brier<=0.15),
-#   5. promotes candidate -> live ONLY when every gate clears — a deferred or
+#   5. promotes candidate -> live ONLY when every gate clears -- a deferred or
 #      sub-gate candidate is NEVER promoted; the prior live checkpoint is kept
 #      as graphsage-checkpoint.prev.json.
 #
@@ -61,11 +61,11 @@ param(
 $ErrorActionPreference = 'Stop'
 
 # Registering / unregistering a task in the root \ folder needs an elevated
-# context on Windows 11 — fail with a clear message instead of a raw COM error.
+# context on Windows 11 -- fail with a clear message instead of a raw COM error.
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(
   [Security.Principal.WindowsBuiltinRole]::Administrator)
 if (-not $isAdmin) {
-  throw "Run from an ELEVATED PowerShell — (un)registering the scheduled task '$TaskName' needs admin rights."
+  throw "Run from an ELEVATED PowerShell -- (un)registering the scheduled task '$TaskName' needs admin rights."
 }
 
 # The scheduled task always targets the canonical main tree, never a worktree
@@ -136,7 +136,7 @@ $trigger = @($pollTrigger, $startupTrigger)
 # ExecutionTimeLimit 30 min: a retrain is a multi-minute GraphSAGE training run
 # plus two ~150 MB graph loads; 30 min is a generous ceiling that still kills a
 # genuinely hung run. MultipleInstances IgnoreNew so a slow retrain never piles
-# a second instance on itself (the lifecycle also holds its own PID lockfile —
+# a second instance on itself (the lifecycle also holds its own PID lockfile --
 # this is the belt, that is the suspenders). RestartCount/Interval self-heals a
 # run that dies abnormally (host OOM mid-train) without waiting a full cycle.
 $settings = New-ScheduledTaskSettingsSet `
@@ -148,7 +148,7 @@ $settings = New-ScheduledTaskSettingsSet `
   -RestartInterval (New-TimeSpan -Minutes 5) `
   -MultipleInstances IgnoreNew
 
-# Principal — the autonomy fix. With NO principal (legacy -Interactive) the
+# Principal -- the autonomy fix. With NO principal (legacy -Interactive) the
 # task's Logon Mode is "Interactive only": it does NOT run unless the installing
 # user is logged in. Default hardens it:
 #   S4U   = current user's security context, runs whether-logged-on-or-not, no
@@ -166,7 +166,7 @@ if (-not $Interactive) {
   }
 }
 
-$desc = "Autonomous GNN tier-5 self-retrain lifecycle (nn-graph-retrain-lifecycle.mjs$(if ($DryRun) { ' --dry-run [BURN-IN]' })). Every $EveryHours h: fingerprint the system-viz graph, drift-detect, and on drift train + evaluate a candidate GraphSAGE checkpoint — promoting it to the live checkpoint ONLY when every NN-GRAPH gate clears. Runs independent of Claude sessions. NN-GRAPH-MS2 U2."
+$desc = "Autonomous GNN tier-5 self-retrain lifecycle (nn-graph-retrain-lifecycle.mjs$(if ($DryRun) { ' --dry-run [BURN-IN]' })). Every $EveryHours h: fingerprint the system-viz graph, drift-detect, and on drift train + evaluate a candidate GraphSAGE checkpoint -- promoting it to the live checkpoint ONLY when every NN-GRAPH gate clears. Runs independent of Claude sessions. NN-GRAPH-MS2 U2."
 
 # Splat so -Principal is omitted entirely in legacy -Interactive mode (passing
 # -Principal $null throws; an absent key is the correct "no principal" form).
@@ -183,7 +183,7 @@ Register-ScheduledTask @registerParams | Out-Null
 
 $mode = if ($DryRun) { 'DRY-RUN burn-in (never promotes)' } else { 'live' }
 $autonomy = if ($Interactive) {
-  'INTERACTIVE-ONLY (legacy — dies when you log off)'
+  'INTERACTIVE-ONLY (legacy -- dies when you log off)'
 } elseif ($AsSystem) {
   'AUTONOMOUS as SYSTEM (runs at boot + whether-logged-on-or-not)'
 } else {
@@ -194,7 +194,7 @@ Write-Host "Registered: $TaskName ($mode, $autonomy, nn-graph-retrain-lifecycle.
 if ($RunNow) {
   Start-ScheduledTask -TaskName $TaskName
   # A retrain can take several minutes; LastTaskResult reads 267009 (0x41301 =
-  # "running") until it finishes — poll past that rather than reporting a
+  # "running") until it finishes -- poll past that rather than reporting a
   # misleading code. A SKIP (no drift) finishes in seconds.
   $deadline = (Get-Date).AddMinutes($RunNowTimeoutMinutes)
   do {
@@ -202,14 +202,14 @@ if ($RunNow) {
     $info = Get-ScheduledTaskInfo -TaskName $TaskName
   } while ($info.LastTaskResult -eq 267009 -and (Get-Date) -lt $deadline)
   if ($info.LastTaskResult -eq 267009) {
-    Write-Host "Triggered immediate run — still running after $RunNowTimeoutMinutes min (LastTaskResult=267009). Check state/shared/nn-graph/retrain-lifecycle.jsonl."
+    Write-Host "Triggered immediate run -- still running after $RunNowTimeoutMinutes min (LastTaskResult=267009). Check state/shared/nn-graph/retrain-lifecycle.jsonl."
   } else {
     Write-Host "Triggered immediate run. LastTaskResult=$($info.LastTaskResult)"
   }
 }
 
 Write-Host ""
-Write-Host "Knobs (env, read by the lifecycle — full list in the script header):"
+Write-Host "Knobs (env, read by the lifecycle -- full list in the script header):"
 Write-Host "  PRISM_NN_RETRAIN_DISABLE=1               lifecycle refuses to do anything (kill switch)"
 Write-Host "  PRISM_NN_RETRAIN_DRY_RUN=1               train + evaluate, never promote"
 Write-Host "  PRISM_NN_RETRAIN_MIN_NODE_DELTA_PCT=N    node-count drift band (default 10)"

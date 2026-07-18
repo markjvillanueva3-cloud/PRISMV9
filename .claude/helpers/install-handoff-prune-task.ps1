@@ -1,6 +1,6 @@
 param(
   [string]$TaskName = 'PRISM Handoff Prune',
-  # Daily run at an off-:00 minute (per the fleet scheduling convention —
+  # Daily run at an off-:00 minute (per the fleet scheduling convention --
   # avoid the :00 mark every host task lands on). 03:47 is deep off-peak.
   [string]$At = '03:47',
   # Burn-in: bake --dry-run (plan only, no files moved). Run for a cycle to
@@ -8,21 +8,21 @@ param(
   [switch]$DryRun,
   [switch]$RunNow,
   [switch]$Uninstall,
-  # Legacy: NO principal → "Interactive only" (task dies at logoff).
+  # Legacy: NO principal -> "Interactive only" (task dies at logoff).
   # Default (switch OFF) hardens to S4U so prune runs whether-logged-on.
   [switch]$Interactive,
-  # SYSTEM principal — opt-in. handoff-prune only touches files under
+  # SYSTEM principal -- opt-in. handoff-prune only touches files under
   # state/shared/handoffs/ owned by the installing user, so S4U suffices.
   [switch]$AsSystem
 )
 
-# install-handoff-prune-task.ps1 — durable auto-trigger for the
+# install-handoff-prune-task.ps1 -- durable auto-trigger for the
 # supersession-aware handoff archiver (scripts/handoff-prune.mjs).
 #
-# WHY: SYSTEM-SYNERGY-AUDIT-2026-05-09 Track H6 / §3 finding #8 — "no LRU on
+# WHY: SYSTEM-SYNERGY-AUDIT-2026-05-09 Track H6 / S3 finding #8 -- "no LRU on
 # handoffs" (876 live HANDOFF-*.md as of 2026-05-19). handoff-prune.mjs
 # already exists and is dry-run-safe; its archive logic only ever fires when
-# something invokes it. This task is that missing auto-trigger — a once-daily
+# something invokes it. This task is that missing auto-trigger -- a once-daily
 # `--apply` so superseded handoffs (a newer handoff exists for the same chat
 # instance) are archived without an operator remembering to.
 #
@@ -35,7 +35,7 @@ $ErrorActionPreference = 'Stop'
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(
   [Security.Principal.WindowsBuiltinRole]::Administrator)
 if (-not $isAdmin) {
-  throw "Run from an ELEVATED PowerShell — (un)registering the scheduled task '$TaskName' needs admin rights."
+  throw "Run from an ELEVATED PowerShell -- (un)registering the scheduled task '$TaskName' needs admin rights."
 }
 
 # Always target the canonical main tree, never a worktree.
@@ -114,7 +114,7 @@ if ($principal) { $registerParams['Principal'] = $principal }
 Register-ScheduledTask @registerParams | Out-Null
 
 $mode = if ($DryRun) { 'DRY-RUN burn-in (plan only, no files moved)' } else { 'live (--apply)' }
-$autonomy = if ($Interactive) { 'INTERACTIVE-ONLY (legacy — dies at logoff)' }
+$autonomy = if ($Interactive) { 'INTERACTIVE-ONLY (legacy -- dies at logoff)' }
   elseif ($AsSystem) { 'AUTONOMOUS as SYSTEM' }
   else { 'AUTONOMOUS as S4U (runs at boot + whether-logged-on)' }
 Write-Host "Registered: $TaskName ($mode, $autonomy, handoff-prune.mjs, daily @ $At + AtStartup, node=$nodeExe)"
@@ -127,7 +127,7 @@ if ($RunNow) {
     $info = Get-ScheduledTaskInfo -TaskName $TaskName
   } while ($info.LastTaskResult -eq 267009 -and (Get-Date) -lt $deadline)
   if ($info.LastTaskResult -eq 267009) {
-    Write-Host "Triggered immediate run — still running after 45s (LastTaskResult=267009)."
+    Write-Host "Triggered immediate run -- still running after 45s (LastTaskResult=267009)."
   } else {
     # handoff-prune exit codes: 0 ok, 1 fail-loud (unreadable dir / move failure).
     $name = switch ($info.LastTaskResult) { 0 { 'OK' } 1 { 'FAIL' } default { 'UNKNOWN' } }

@@ -1,19 +1,19 @@
-# install-vault-rot-sentinel-cron.ps1 — OBSIDIAN-VAULT-OPS / U-VAULT-MAINT-CRON
+# install-vault-rot-sentinel-cron.ps1 -- OBSIDIAN-VAULT-OPS / U-VAULT-MAINT-CRON
 # Register a durable Windows Scheduled Task that runs the vault-rot sentinel
 # (vault-rot-sentinel.mjs --write) daily. Closes the "rot-sentinel runs only by
 # hand" gap from the 2026-06-08 vault audit (it detects stale/orphaned/rotting
 # notes but its report was 2 days stale because nothing scheduled it).
 #
 # Pattern mirrors install-wiki-tribal-audit-task.ps1 (current-user S4U, knob-aware
-# Action, idempotent unregister-before-register). Phase at 00:38 — off-peak,
+# Action, idempotent unregister-before-register). Phase at 00:38 -- off-peak,
 # distinct from wiki-tribal audit (00:08), vault promotion (02:47), fleet-reaper.
 #
-# ── OPERATOR NOTE (HW/DRIVE MIGRATION FREEZE, 2026-06-08) ────────────────────────
+# -- OPERATOR NOTE (HW/DRIVE MIGRATION FREEZE, 2026-06-08) ------------------------
 # This installer REGISTERS the task but the operator decides WHEN to arm it. The
 # fleet has 47 PRISM scheduled tasks deliberately DISABLED during a hardware/drive
-# migration — DO NOT run this installer (or run it with -Disabled) until the
+# migration -- DO NOT run this installer (or run it with -Disabled) until the
 # operator confirms the migration is complete.
-# ─────────────────────────────────────────────────────────────────────────────────
+# ---------------------------------------------------------------------------------
 #
 # Usage:
 #   powershell -NoProfile -ExecutionPolicy Bypass -File H:/prism/.claude/helpers/install-vault-rot-sentinel-cron.ps1 -Disabled
@@ -59,7 +59,7 @@ $action = New-ScheduledTaskAction `
   -Execute "powershell.exe" `
   -Argument "-NoProfile -ExecutionPolicy Bypass -File `"$tmp`""
 
-# Daily at 00:38:00 — off-peak, distinct from the sibling vault/wiki crons.
+# Daily at 00:38:00 -- off-peak, distinct from the sibling vault/wiki crons.
 $trigger = New-ScheduledTaskTrigger -Daily -At "00:38:00"
 
 $principal = New-ScheduledTaskPrincipal -UserId "$env:USERDOMAIN\$env:USERNAME" -LogonType S4U
@@ -90,7 +90,7 @@ Write-Host "  Disable knob: PRISM_VAULT_ROT_CRON_DISABLE=1"
 
 if ($Disabled) {
   Disable-ScheduledTask -TaskName $TaskName | Out-Null
-  Write-Host "  State: DISABLED (migration-safe — operator runs 'Enable-ScheduledTask -TaskName ""$TaskName""' to arm)"
+  Write-Host "  State: DISABLED (migration-safe -- operator runs 'Enable-ScheduledTask -TaskName ""$TaskName""' to arm)"
 }
 
 if ($RunNow) {

@@ -5,7 +5,7 @@ param(
   [switch]$Uninstall
 )
 
-# install-memory-pressure-task.ps1 — HS-13 automated memory-pressure relief
+# install-memory-pressure-task.ps1 -- HS-13 automated memory-pressure relief
 # (2026-05-12). Registers a Windows Scheduled Task that runs
 # scripts/system-health/03-memory-pressure-auto-relief.ps1 every $EveryMinutes
 # minutes, independent of Claude Code sessions. Cheap (~50 ms) when memory is
@@ -13,7 +13,7 @@ param(
 # crosses the configured thresholds.
 #
 # Why a separate task from "PRISM Hook Janitor": the janitor (2-min cadence)
-# targets specific orphan processes by cmdline+parent-PID-dead heuristics —
+# targets specific orphan processes by cmdline+parent-PID-dead heuristics --
 # it won't reap an alive-but-stale MCP server. The pressure relief task
 # operates on *aggregate memory state* and invokes the heavier
 # 02-kill-zombie-tsservers.ps1 only when actually needed. Different jobs.
@@ -49,14 +49,14 @@ $trigger = New-ScheduledTaskTrigger `
 
 # ExecutionTimeLimit is the BACKSTOP, not the primary bound. The relief script
 # (03-memory-pressure-auto-relief.ps1) self-bounds every run to its $MaxRuntimeSec
-# (default 100s) — each escalation tier checks the remaining budget and every
+# (default 100s) -- each escalation tier checks the remaining budget and every
 # heavy sub-invocation is a bounded child process. 4 min gives comfortable
 # headroom so a one-off slow OS (WMI hiccup, taskkill latency under fork-storm
 # load) still completes cleanly instead of being SIGKILL'd by the scheduler
-# (which recorded LastTaskResult=267014 SCHED_S_TASK_TERMINATED — the 2-min
+# (which recorded LastTaskResult=267014 SCHED_S_TASK_TERMINATED -- the 2-min
 # limit was too tight against the script's own 100s budget). Raised 2026-05-14
 # (SLOT-WORKTREE-MS0 hygiene fix). NOTE: an existing registered task keeps its
-# old limit until re-registered — re-run this installer (elevated) to apply.
+# old limit until re-registered -- re-run this installer (elevated) to apply.
 $settings = New-ScheduledTaskSettingsSet `
   -AllowStartIfOnBatteries `
   -DontStopIfGoingOnBatteries `
@@ -74,7 +74,7 @@ Register-ScheduledTask `
 
 Write-Host "Registered: $TaskName (03-memory-pressure-auto-relief.ps1, every $EveryMinutes min, ExecutionTimeLimit=4min)"
 Write-Host "NOTE: this Register call is what APPLIES the 4-min ExecutionTimeLimit. Pulling the"
-Write-Host "      commit alone does not — if you only updated the file, re-run this installer"
+Write-Host "      commit alone does not -- if you only updated the file, re-run this installer"
 Write-Host "      (elevated) to push the new limit onto the live task. The relief script also"
 Write-Host "      self-bounds to ~100s, so the limit is a backstop, not the primary bound."
 

@@ -6,7 +6,7 @@ param(
   [switch]$Uninstall
 )
 
-# install-source-monitor-task.ps1 — AUTO-LEARNING-LOOP-MS0 / U-ALL01 step-4
+# install-source-monitor-task.ps1 -- AUTO-LEARNING-LOOP-MS0 / U-ALL01 step-4
 #
 # Registers a Windows Scheduled Task that runs scripts/source-monitor-sweep.mjs
 # every 4 hours at minute 7 (off-minute to avoid colliding with the every-2-min
@@ -17,7 +17,7 @@ param(
 # Per atomized spec (BACKEND-DEVTOOLS-RGS6-AUTO-LEARNING-LOOP-MS0-ATOMIZED-2026-05-10.md):
 #   loop_schedule: 4h cron
 #   verifies_via: integration tool `node scripts/source-monitor-sweep.mjs --once`
-#   expected_signal: ≥1 new item logged from each of 10 sources
+#   expected_signal: >=1 new item logged from each of 10 sources
 #
 # Permanent fix policy: this REGISTERS a task. Use -Uninstall to remove cleanly.
 # Per `feedback_never_delete_only_disable.md` you can Disable-ScheduledTask

@@ -4,14 +4,14 @@ param(
   # stops before the next unit once the budget is spent; per-unit checkpointing
   # means the following night resumes where this one stopped.
   [int]$TimeBudgetMinutes = 60,
-  # Nightly trigger time. Default 3:13 AM — off-peak and off the :00/:30 marks
+  # Nightly trigger time. Default 3:13 AM -- off-peak and off the :00/:30 marks
   # so it does not phase-lock onto every other task anchored on the hour.
   [string]$At = '3:13AM',
   [switch]$RunNow,
   [switch]$Uninstall
 )
 
-# install-rgs-planner-task.ps1 — durable nightly replan for the RGS tool-plan
+# install-rgs-planner-task.ps1 -- durable nightly replan for the RGS tool-plan
 # sidecar (RGS-TOOL-AUTOINVOKE-MS1/U-CRON).
 #
 # Registers a Windows Scheduled Task that runs rgs-tool-planner.mjs once a night
@@ -23,7 +23,7 @@ param(
 # open roadmap unit, fuses signals (capabilities + tribal + skill triggers +
 # rules + optional Ollama synthesis) into a tool plan, and writes the sidecar
 # state/shared/roadmap-tool-plans.json. The run is checkpoint-resumable
-# (.roadmap-tool-plans.checkpoint.jsonl) — a budget-truncated night is continued
+# (.roadmap-tool-plans.checkpoint.jsonl) -- a budget-truncated night is continued
 # the next night, and a unit whose source text changed is re-planned.
 #
 # Why a time budget: a full 4,400-unit pass with Ollama synthesis is long. The
@@ -38,11 +38,11 @@ param(
 $ErrorActionPreference = 'Stop'
 
 # Registering / unregistering a task in the root \ folder needs an elevated
-# context on Windows 11 — fail with a clear message instead of a raw COM error.
+# context on Windows 11 -- fail with a clear message instead of a raw COM error.
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(
   [Security.Principal.WindowsBuiltinRole]::Administrator)
 if (-not $isAdmin) {
-  throw "Run from an ELEVATED PowerShell — (un)registering the scheduled task '$TaskName' needs admin rights."
+  throw "Run from an ELEVATED PowerShell -- (un)registering the scheduled task '$TaskName' needs admin rights."
 }
 
 if ($Uninstall) {
@@ -115,15 +115,15 @@ Write-Host "Registered: $TaskName (daily at $At, rgs-tool-planner.mjs --time-bud
 
 if ($RunNow) {
   Start-ScheduledTask -TaskName $TaskName
-  # A budgeted planner run can take up to $TimeBudgetMinutes — do NOT poll to
+  # A budgeted planner run can take up to $TimeBudgetMinutes -- do NOT poll to
   # completion here. Confirm it started and point at the durable artifacts.
   Start-Sleep -Seconds 3
   $info = Get-ScheduledTaskInfo -TaskName $TaskName
-  Write-Host "Triggered immediate run (LastTaskResult=$($info.LastTaskResult); 267009 = still running — expected for a budgeted run)."
+  Write-Host "Triggered immediate run (LastTaskResult=$($info.LastTaskResult); 267009 = still running -- expected for a budgeted run)."
 }
 
 Write-Host ""
-Write-Host "Output is the sidecar itself — there is no separate run-log:"
+Write-Host "Output is the sidecar itself -- there is no separate run-log:"
 Write-Host "  Sidecar:    H:/PRISM/state/shared/roadmap-tool-plans.json"
 Write-Host "  Checkpoint: H:/PRISM/state/shared/.roadmap-tool-plans.checkpoint.jsonl"
 Write-Host "  Coverage:   node H:/PRISM/scripts/rgs-plan-coverage.mjs   (or /rgs tool-plan-coverage)"

@@ -1,6 +1,6 @@
 param(
   [string]$TaskName = 'PRISM Hermes Dream-Cycle Synth',
-  # Run nightly at 03:17 local — off-hour minute to avoid the :00/:30 fleet
+  # Run nightly at 03:17 local -- off-hour minute to avoid the :00/:30 fleet
   # collision per the cron-style off-minute discipline. Also avoids the daily-
   # context window which fires earlier in the morning.
   [string]$Time = '03:17',
@@ -11,7 +11,7 @@ param(
   [switch]$AsSystem
 )
 
-# install-hermes-dream-cycle-task.ps1 — durable backbone for the nightly
+# install-hermes-dream-cycle-task.ps1 -- durable backbone for the nightly
 # dream-cycle synthesis populater (scripts/hermes-dream-cycle-synth.mjs).
 #
 # DOMAIN-GALAXY-DOCTRINE-MS1/U-GALAXY-MS1-B1-HMEMV04-CRON-REGISTRATION
@@ -29,9 +29,9 @@ param(
 # fast (~245K Jaccard comparisons in <1s on V8 for ~700 memos).
 #
 # Sister tasks (do not collide):
-#   PRISM Weekly Synthesis           — Sunday 20:10, LLM via Ollama (B4)
-#   PRISM Daily Context              — earlier morning brief (B1 sibling)
-#   PRISM Hermes Self-Reflect        — separate weekly populater
+#   PRISM Weekly Synthesis           -- Sunday 20:10, LLM via Ollama (B4)
+#   PRISM Daily Context              -- earlier morning brief (B1 sibling)
+#   PRISM Hermes Self-Reflect        -- separate weekly populater
 # This dream-cycle is NIGHTLY (cross-memo connection discovery is fresh
 # each day as new memos auto-feed in via the Stop-hook auto-memory layer).
 #
@@ -46,13 +46,13 @@ $ErrorActionPreference = 'Stop'
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(
   [Security.Principal.WindowsBuiltinRole]::Administrator)
 if (-not $isAdmin) {
-  throw "Run from an ELEVATED PowerShell — (un)registering the scheduled task '$TaskName' needs admin rights."
+  throw "Run from an ELEVATED PowerShell -- (un)registering the scheduled task '$TaskName' needs admin rights."
 }
 
 $synthScript = 'H:\PRISM\scripts\hermes-dream-cycle-synth.mjs'
 
 # Prefer the portable node; fall back to PATH then Program Files. Mirrors
-# install-fleet-memory-monitor-task.ps1:66-71 — keep in sync.
+# install-fleet-memory-monitor-task.ps1:66-71 -- keep in sync.
 $nodeExe = $null
 foreach ($cand in @('H:\Tools\nodejs\node.exe', 'C:\Program Files\nodejs\node.exe')) {
   if (Test-Path $cand) { $nodeExe = $cand; break }
@@ -147,7 +147,7 @@ if ($principal) { $registerParams['Principal'] = $principal }
 Register-ScheduledTask @registerParams | Out-Null
 
 $autonomy = if ($Interactive) {
-  'INTERACTIVE-ONLY (legacy — dies when you log off)'
+  'INTERACTIVE-ONLY (legacy -- dies when you log off)'
 } elseif ($AsSystem) {
   'AUTONOMOUS as SYSTEM (runs at boot + whether-logged-on-or-not)'
 } else {
@@ -163,7 +163,7 @@ if ($RunNow) {
     $info = Get-ScheduledTaskInfo -TaskName $TaskName
   } while ($info.LastTaskResult -eq 267009 -and (Get-Date) -lt $deadline)
   if ($info.LastTaskResult -eq 267009) {
-    Write-Host "Triggered immediate run — still running after 60s (LastTaskResult=267009)."
+    Write-Host "Triggered immediate run -- still running after 60s (LastTaskResult=267009)."
   } else {
     $name = switch ($info.LastTaskResult) {
       0 { 'OK' }
@@ -175,7 +175,7 @@ if ($RunNow) {
 }
 
 Write-Host ""
-Write-Host "Knobs (CLI flags to the synth script — see script header for full list):"
+Write-Host "Knobs (CLI flags to the synth script -- see script header for full list):"
 Write-Host "  --root <path>             memos root (default H:/prism/knowledge/memories)"
 Write-Host "  --out <path>              output file (default {root}/dreams/<date>.md)"
 Write-Host "  --min-jaccard N           similarity threshold (default 0.15)"

@@ -5,7 +5,7 @@ param(
   [switch]$Uninstall
 )
 
-# install-hook-janitor-task.ps1 — permanent fix for the hook fork-storm hang (2026-05-11)
+# install-hook-janitor-task.ps1 -- permanent fix for the hook fork-storm hang (2026-05-11)
 #
 # Registers a Windows Scheduled Task that runs node-process-janitor.mjs --full
 # every $EveryMinutes minutes, independent of Claude Code sessions.
@@ -16,7 +16,7 @@ param(
 # each hook, plus orphaned @playwright/mcp / mcp-http-bridge servers from dead
 # sessions. The hardened janitor (--full) reaps all of those. 2-min cadence so
 # orphans never accumulate for long even when every Claude session is hung (a
-# hung session never fires its Stop hooks — see reference_harness_hang_prevention).
+# hung session never fires its Stop hooks -- see reference_harness_hang_prevention).
 #
 # Per memory feedback_never_delete_only_disable.md: this REGISTERS a task; it can
 # be Disable-ScheduledTask'd to pause without removing. Use -Uninstall to remove.

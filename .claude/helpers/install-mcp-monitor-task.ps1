@@ -1,18 +1,18 @@
-# install-mcp-monitor-task.ps1 — register "PRISM MCP Connectivity Monitor"
+# install-mcp-monitor-task.ps1 -- register "PRISM MCP Connectivity Monitor"
 #
 # Scheduled task runs every 5 minutes under the current user (no elevation
 # required). Each invocation = one tick of monitor-mcp-and-reaper.mjs --once:
 # probes :3100/health, tails fleet-reaper.log, appends one JSONL row to
 # H:/prism/state/shared/dashboards/mcp-reaper-monitor.jsonl.
 #
-# Idempotent — re-running just refreshes the trigger schedule. Adopt the
+# Idempotent -- re-running just refreshes the trigger schedule. Adopt the
 # same pattern as PRISM Fleet Reaper + PRISM MCP Server Watchdog.
 #
 # Usage:
 #   powershell -NoProfile -ExecutionPolicy Bypass -File .claude\helpers\install-mcp-monitor-task.ps1 [-RunNow]
 #
 # Knobs (env, read by the script):
-#   PRISM_MONITOR_DISABLE=1 — script no-ops (existence preserved)
+#   PRISM_MONITOR_DISABLE=1 -- script no-ops (existence preserved)
 
 param([switch]$RunNow)
 

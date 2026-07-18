@@ -1,13 +1,13 @@
-# install-system-viz-revwalk-task.ps1 — SYSTEM-VIZ-FS-COVERAGE-MS1/U-MS1-CRON-RUNNER
+# install-system-viz-revwalk-task.ps1 -- SYSTEM-VIZ-FS-COVERAGE-MS1/U-MS1-CRON-RUNNER
 #
 # Registers a daily Windows scheduled task ("PRISM System-Viz Re-walk Daily") that
 # invokes cron-revwalk.mjs at 03:15 local time (off-set from the 03:00 cleanup +
 # 03:30 reaper tasks so the disk doesn't take three simultaneous walks). Idempotent
-# — re-running updates the existing task.
+# -- re-running updates the existing task.
 #
 # Companion to:
-#   scripts/cron-revwalk.mjs                  — the runner
-#   scripts/lib/namespace-churn-ranker.mjs    — the ranker
+#   scripts/cron-revwalk.mjs                  -- the runner
+#   scripts/lib/namespace-churn-ranker.mjs    -- the ranker
 #
 # Usage:
 #   .\install-system-viz-revwalk-task.ps1                     # register + leave disabled (-Disabled)
@@ -31,7 +31,7 @@ param(
 $ErrorActionPreference = "Stop"
 $TaskName = "PRISM System-Viz Re-walk Daily"
 
-# ── Elevation gate ────────────────────────────────────────────────────────────
+# -- Elevation gate ------------------------------------------------------------
 $identity = [System.Security.Principal.WindowsIdentity]::GetCurrent()
 $principal = New-Object System.Security.Principal.WindowsPrincipal($identity)
 if (-not $principal.IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator)) {
@@ -40,11 +40,11 @@ if (-not $principal.IsInRole([System.Security.Principal.WindowsBuiltInRole]::Adm
     exit 1
 }
 
-# ── Uninstall path ────────────────────────────────────────────────────────────
+# -- Uninstall path ------------------------------------------------------------
 if ($Uninstall) {
     $existing = Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
     if ($null -eq $existing) {
-        Write-Host "Task '$TaskName' not registered — nothing to remove." -ForegroundColor Yellow
+        Write-Host "Task '$TaskName' not registered -- nothing to remove." -ForegroundColor Yellow
         exit 0
     }
     Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false
@@ -52,7 +52,7 @@ if ($Uninstall) {
     exit 0
 }
 
-# ── Resolve paths ─────────────────────────────────────────────────────────────
+# -- Resolve paths -------------------------------------------------------------
 $RepoRoot = "H:\prism"
 $Runner = Join-Path $RepoRoot "scripts\cron-revwalk.mjs"
 $NodeExe = "H:\Tools\nodejs\node.exe"
@@ -66,11 +66,11 @@ if (-not (Test-Path $Runner)) {
 if (-not (Test-Path $NodeExe)) {
     # Fallback to system PATH
     $NodeExe = "node.exe"
-    Write-Host "WARN: Portable node not at H:\Tools\nodejs — falling back to PATH 'node.exe'." -ForegroundColor Yellow
+    Write-Host "WARN: Portable node not at H:\Tools\nodejs -- falling back to PATH 'node.exe'." -ForegroundColor Yellow
 }
 if (-not (Test-Path $LogDir)) { New-Item -ItemType Directory -Path $LogDir -Force | Out-Null }
 
-# ── Build the action argument string ──────────────────────────────────────────
+# -- Build the action argument string ------------------------------------------
 $RunnerArgs = @(
     "`"$Runner`"",
     "--top", "$TopN",
@@ -81,10 +81,10 @@ $RunnerArgs = @(
 if ($DryRun) { $RunnerArgs += "--dry-run" }
 $ActionArgs = $RunnerArgs -join " "
 
-# ── Register the task ─────────────────────────────────────────────────────────
+# -- Register the task ---------------------------------------------------------
 $existing = Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
 if ($null -ne $existing) {
-    Write-Host "Task '$TaskName' already exists — updating in place..." -ForegroundColor Cyan
+    Write-Host "Task '$TaskName' already exists -- updating in place..." -ForegroundColor Cyan
     Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false
 }
 
@@ -105,7 +105,7 @@ Register-ScheduledTask `
     -Trigger $Trigger `
     -Settings $Settings `
     -Principal $Principal `
-    -Description "PRISM SYSTEM-VIZ-FS-COVERAGE-MS1/U-MS1-CRON-RUNNER — daily re-walk of top-N highest-churn namespaces in state/shared/system-viz/system-graph.json. Companion: namespace-churn-ranker.mjs." `
+    -Description "PRISM SYSTEM-VIZ-FS-COVERAGE-MS1/U-MS1-CRON-RUNNER -- daily re-walk of top-N highest-churn namespaces in state/shared/system-viz/system-graph.json. Companion: namespace-churn-ranker.mjs." `
     | Out-Null
 
 Write-Host "Registered scheduled task '$TaskName'." -ForegroundColor Green

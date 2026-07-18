@@ -1,4 +1,4 @@
-# install-tribal-consolidate-cron.ps1 — U-VICTOR-C2
+# install-tribal-consolidate-cron.ps1 -- U-VICTOR-C2
 # Weekly: consolidate tribal tips (dedup, merge, prune stale).
 # Pairs with U-VICTOR-C4 (stale auto-prune extension to consolidate-weekly).
 #
@@ -38,7 +38,7 @@ $tmp = Join-Path $env:TEMP "prism-tribal-consolidate-cron.ps1"
 Set-Content -Path $tmp -Value $action_cmd -Encoding UTF8
 
 $action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-NoProfile -ExecutionPolicy Bypass -File `"$tmp`""
-# Weekly Sunday 04:23 — DaysOfWeek param available on Win10+
+# Weekly Sunday 04:23 -- DaysOfWeek param available on Win10+
 $trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Sunday -At "04:23:00"
 $principal = New-ScheduledTaskPrincipal -UserId "$env:USERDOMAIN\$env:USERNAME" -LogonType S4U
 $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -ExecutionTimeLimit (New-TimeSpan -Minutes 60)

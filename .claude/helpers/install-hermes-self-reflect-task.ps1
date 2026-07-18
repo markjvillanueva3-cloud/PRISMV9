@@ -1,6 +1,6 @@
 param(
   [string]$TaskName = 'PRISM Hermes Self-Reflect Weekly',
-  # Sunday 20:53 local — off-minute discipline (avoid :00/:30 fleet collisions).
+  # Sunday 20:53 local -- off-minute discipline (avoid :00/:30 fleet collisions).
   # The B4 sister 'PRISM Weekly Synthesis' fires Sun 20:10 (LLM-based via
   # Ollama). This task fires 43 min later so the two weekly Hermes jobs don't
   # contend for the same memos/* I/O window. Both anchor on the same Sunday
@@ -14,11 +14,11 @@ param(
   [switch]$AsSystem
 )
 
-# install-hermes-self-reflect-task.ps1 — durable backbone for the WEEKLY
+# install-hermes-self-reflect-task.ps1 -- durable backbone for the WEEKLY
 # Hermes self-reflect populater (scripts/hermes-self-reflect-populater.mjs).
 #
 # DOMAIN-GALAXY-DOCTRINE-MS1/U-GALAXY-MS1-B1-HMEMV04-CRON-REGISTRATION
-# (2026-05-28, slot:alpha follow-up — completes the OTHER half the 6f9a21c99a
+# (2026-05-28, slot:alpha follow-up -- completes the OTHER half the 6f9a21c99a
 # commit named). The dream-cycle installer (install-hermes-dream-cycle-task.ps1
 # at 6f9a21c99a) only covered hermes-dream-cycle-synth.mjs; the unit
 # description named TWO scripts. This installer closes the second.
@@ -28,12 +28,12 @@ param(
 # knowledge/memories/{feedback,reference,project}/*.md from the past 7 days,
 # groups by type, computes top-recurring keywords (stop-word filtered),
 # writes a markdown digest at
-# knowledge/memories/weekly-hermes-reflection-<anchor>.md — purely mechanical
+# knowledge/memories/weekly-hermes-reflection-<anchor>.md -- purely mechanical
 # aggregation (no LLM dependency), deterministic, fast.
 #
 # Sister tasks (do not collide):
-#   PRISM Weekly Synthesis           — Sunday 20:10, LLM via Ollama (B4)
-#   PRISM Hermes Dream-Cycle Synth   — Nightly 03:17, mechanical (B1 sibling)
+#   PRISM Weekly Synthesis           -- Sunday 20:10, LLM via Ollama (B4)
+#   PRISM Hermes Dream-Cycle Synth   -- Nightly 03:17, mechanical (B1 sibling)
 # This populater is WEEKLY (Sunday-anchored aggregation matches the snap
 # formula in the dispatcher at memoryDispatcher.ts:729-732 and the populater
 # script's own snapToSunday).
@@ -56,13 +56,13 @@ $ErrorActionPreference = 'Stop'
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(
   [Security.Principal.WindowsBuiltinRole]::Administrator)
 if (-not $isAdmin) {
-  throw "Run from an ELEVATED PowerShell — (un)registering the scheduled task '$TaskName' needs admin rights."
+  throw "Run from an ELEVATED PowerShell -- (un)registering the scheduled task '$TaskName' needs admin rights."
 }
 
 $populaterScript = 'H:\PRISM\scripts\hermes-self-reflect-populater.mjs'
 
 # Prefer the portable node; fall back to PATH then Program Files. Mirrors
-# install-hermes-dream-cycle-task.ps1:56-60 — keep in sync.
+# install-hermes-dream-cycle-task.ps1:56-60 -- keep in sync.
 $nodeExe = $null
 foreach ($cand in @('H:\Tools\nodejs\node.exe', 'C:\Program Files\nodejs\node.exe')) {
   if (Test-Path $cand) { $nodeExe = $cand; break }
@@ -96,7 +96,7 @@ $action = New-ScheduledTaskAction -Execute $nodeExe -Argument "`"$populaterScrip
 
 # Weekly trigger on $DayOfWeek at $Time local. StartWhenAvailable means a
 # PC that was off at trigger time runs the populater at the next opportunity
-# — important for a weekly job that operators don't want to lose to a Sunday
+# -- important for a weekly job that operators don't want to lose to a Sunday
 # evening reboot.
 $trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek $DayOfWeek -At $Time
 
@@ -146,7 +146,7 @@ if ($principal) { $registerParams['Principal'] = $principal }
 Register-ScheduledTask @registerParams | Out-Null
 
 $autonomy = if ($Interactive) {
-  'INTERACTIVE-ONLY (legacy — dies when you log off)'
+  'INTERACTIVE-ONLY (legacy -- dies when you log off)'
 } elseif ($AsSystem) {
   'AUTONOMOUS as SYSTEM (runs at boot + whether-logged-on-or-not)'
 } else {
@@ -162,7 +162,7 @@ if ($RunNow) {
     $info = Get-ScheduledTaskInfo -TaskName $TaskName
   } while ($info.LastTaskResult -eq 267009 -and (Get-Date) -lt $deadline)
   if ($info.LastTaskResult -eq 267009) {
-    Write-Host "Triggered immediate run — still running after 60s (LastTaskResult=267009)."
+    Write-Host "Triggered immediate run -- still running after 60s (LastTaskResult=267009)."
   } else {
     $name = switch ($info.LastTaskResult) {
       0 { 'OK' }
@@ -174,7 +174,7 @@ if ($RunNow) {
 }
 
 Write-Host ""
-Write-Host "Knobs (CLI flags to the populater script — see script header for full list):"
+Write-Host "Knobs (CLI flags to the populater script -- see script header for full list):"
 Write-Host "  --root <path>             memos root (default H:/prism/knowledge/memories)"
 Write-Host "  --days N                  recency window (default 7)"
 Write-Host "  --out <path>              output file (default {root}/weekly-hermes-reflection-<anchor>.md)"

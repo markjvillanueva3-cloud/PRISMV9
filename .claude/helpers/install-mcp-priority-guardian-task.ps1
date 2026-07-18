@@ -54,7 +54,7 @@ if (-not (Test-Path $guardianScript)) {
 }
 # Sanity: confirm the script is the guardian (header markers).
 $head = Get-Content $guardianScript -TotalCount 5 -ErrorAction SilentlyContinue
-# Markers reflect REAL guardian content (the disable knob it implements) — not a
+# Markers reflect REAL guardian content (the disable knob it implements) -- not a
 # borrowed convention. Both live in the header (lines 1-2).
 if (-not (($head -match 'mcp-priority-guardian') -and ($head -match 'PRISM_MCP_GUARDIAN_DISABLE'))) {
   throw "Refusing to install: $guardianScript does not look like mcp-priority-guardian.ps1 (missing header markers)."
